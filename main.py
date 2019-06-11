@@ -15,7 +15,7 @@ if __name__ == "__main__":
     
     videoScraper = scraper.VideoScraper(reddit)
     print("Getting money with {}...".format(reddit.user.me()))
-    # videoScraper.batchContent("LivestreamFail", 25)
-    # videoScraper.mergeContent()
+    videoScraper.batchContent("LivestreamFail", 25)
+    videoScraper.mergeContent()
     videoScraper.upYoutube()
     print("Done!")
