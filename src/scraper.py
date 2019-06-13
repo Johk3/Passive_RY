@@ -7,6 +7,7 @@ from os import listdir
 from os.path import isfile, join
 import os
 import subprocess
+import pyautogui
 
 
 class VideoScraper:
@@ -48,7 +49,9 @@ class VideoScraper:
                 # Uploads the twitch link to the service and then pulls the best quality video from the service
                 driver = webdriver.Chrome(executable_path=executable_path, chrome_options=options)
                 driver.get("http://en.fetchfile.net/?url={}".format(urllib.parse.quote(content)))
-                sleep(15)
+                sleep(20)
+                pyautogui.click(909, 414)
+                sleep(1)
                 links = driver.find_elements_by_link_text('Download video')
                 links[-1].click()
                 sleep(3)
