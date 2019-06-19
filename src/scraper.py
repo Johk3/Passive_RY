@@ -6,6 +6,7 @@ from selenium.webdriver.chrome.options import Options
 from os import listdir
 from os.path import isfile, join
 import os
+import glob
 import subprocess
 import pyautogui
 
@@ -44,17 +45,17 @@ class VideoScraper:
                 # You need to have Ublock extension here to block all the ads that will get in the way
                 options.add_argument('load-extension=' + '/home/johk/Documents/1.19.2_0')
                 # options.add_extension('/home/johk/Documents/ublock.zip')
-                executable_path = "/home/johk/Projects/Passive_RTY/chromedriver"
+                executable_path = "/home/johk/Projects/Passive_RY/chromedriver"
 
                 # Uploads the twitch link to the service and then pulls the best quality video from the service
                 driver = webdriver.Chrome(executable_path=executable_path, chrome_options=options)
                 driver.get("http://en.fetchfile.net/?url={}".format(urllib.parse.quote(content)))
-                sleep(20)
+                sleep(10)
                 pyautogui.click(909, 414)
                 sleep(1)
                 links = driver.find_elements_by_link_text('Download video')
                 links[-1].click()
-                sleep(3)
+                sleep(4)
                 print("Extra check")
                 check = [f for f in listdir(mypath) if isfile(join(mypath, f))]
                 if len(check) != len(pastfiles):
@@ -75,7 +76,7 @@ class VideoScraper:
                                 newfile = list(set(newfiles) - set(pastfiles))[0]
                                 self.files.append(newfile)
                                 print("Processing new file {}".format(newfile))
-                                os.system("mv /home/johk/Downloads/{} /home/johk/Projects/Passive_RTY/merge".format(newfile))
+                                os.system("mv /home/johk/Downloads/{} /home/johk/Projects/Passive_RY/merge".format(newfile))
                                 print("Done!")
                                 driver.close()
 
@@ -94,28 +95,35 @@ class VideoScraper:
         os.system("rm -rf output/*")
         os.system("rm -rf ts/*")
         print("Starting to merge the contents together...")
-        mypath = "/home/johk/Projects/Passive_RTY/merge"
-        files = [f for f in listdir(mypath) if isfile(join(mypath, f))]
+        print("Sorting based on date...")
+        search_dir = "/home/johk/Projects/Passive_RY/merge/"
+        # remove anything from the list that is not a file (directories, symlinks)
+        # thanks to J.F. Sebastion for pointing out that the requirement was a list
+        # of files (presumably not including directories)
+        files = filter(os.path.isfile, glob.glob(search_dir + "*"))
+        files.sort(key=lambda x: os.path.getmtime(x))
         print("Processing")
         submission = "concat:"
         for file in files:
             if file[-2:] != "md":
-                os.system("ffmpeg -i {} -c copy -bsf:v h264_mp4toannexb -f mpegts {}.ts".format("/home/johk/Projects/Passive_RTY/merge/"+file, "/home/johk/Projects/Passive_RTY/ts/"+file.split(".")[0]))
-                submission += "/home/johk/Projects/Passive_RTY/ts/"+file.split(".")[0]+".ts|"
+                os.system("ffmpeg -i {} -c copy -bsf:v h264_mp4toannexb -f mpegts {}.ts".format("/home/johk/Projects/Passive_RY/merge/"+file, "/home/johk/Projects/Passive_RY/ts/"+file.split(".")[0]))
+                submission += "/home/johk/Projects/Passive_RY/ts/"+file.split(".")[0]+".ts|"
 
         submission = submission[:-1]
         print("Compressing...")
         os.system('ffmpeg -i "{}" -c copy -bsf:a aac_adtstoasc output/output.mp4'.format(submission))
         print("Done!")
-        os.system("rm ts/*")
 
     def upYoutube(self):
         print("Uploading to youtube...")
+        tags = ""
+        for i in range(5):
+            tags += "{}, ".format(self.title[i])
         title = self.title[0] + " & More -LiveStreamFails"
-        os.system('youtube-upload --title="{}" --description="{}" --category="Entertainment" --tags="{}, twitch, '
+        os.system('youtube-upload --title="{}" --description="{}" --category="Entertainment" --tags="{} twitch, '
                   'streamers, entertainment, comedy, ninja, pewdiepie, shroud, forsen, epicfail, livestreamfails, '
                   'livestream, stream, tyler1, greekgodx, content" --default-language="en" '
-                  '--default-audio-language="en" --client-secrets="secret.json" {}'.format(title, title, title,
+                  '--default-audio-language="en" --client-secrets="secret.json" {}'.format(title, title, tags,
                                                                                            "output/output.mp4"))
 
         print("Successfully uploaded!")
