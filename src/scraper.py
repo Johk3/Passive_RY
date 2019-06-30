@@ -100,14 +100,17 @@ class VideoScraper:
         # remove anything from the list that is not a file (directories, symlinks)
         # thanks to J.F. Sebastion for pointing out that the requirement was a list
         # of files (presumably not including directories)
-        files = filter(os.path.isfile, glob.glob(search_dir + "*"))
+        files = list(filter(os.path.isfile, glob.glob(search_dir + "*")))
         files.sort(key=lambda x: os.path.getmtime(x))
         print("Processing")
         submission = "concat:"
         for file in files:
             if file[-2:] != "md":
-                os.system("ffmpeg -i {} -c copy -bsf:v h264_mp4toannexb -f mpegts {}.ts".format("/home/johk/Projects/Passive_RY/merge/"+file, "/home/johk/Projects/Passive_RY/ts/"+file.split(".")[0]))
-                submission += "/home/johk/Projects/Passive_RY/ts/"+file.split(".")[0]+".ts|"
+                if file.split(".")[-1] == "mp4":
+                    file = file.split(".")[0]
+                    file = file.split("/")[-1]
+                    os.system("ffmpeg -i {}.mp4 -c copy -bsf:v h264_mp4toannexb -f mpegts {}.ts".format("/home/johk/Projects/Passive_RY/merge/"+file, "/home/johk/Projects/Passive_RY/ts/"+file))
+                    submission += "/home/johk/Projects/Passive_RY/ts/"+file+".ts|"
 
         submission = submission[:-1]
         print("Compressing...")
