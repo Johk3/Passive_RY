@@ -1,10 +1,10 @@
 # Passive_RTY
 
-A tool to create passive income from reddit content
+A tool to create passive income from reddit content.
 
 ## Getting Started
 
-These instructions will get you a copy of the project up and running on your local machine for development and testing purposes. See deployment for notes on how to deploy the project on a live system.
+This tool was created as a way to upload Reddit content to Youtube in an efficient and fast manner which would not require to be controlled by a human past the initial conditions which are set for the software, such as which subreddit it will scrape content from, etc. These instructions will get you a copy of the project up and running on your local machine for development and testing purposes. See deployment for notes on how to deploy the project on a live system.
 
 ### Prerequisites
 
